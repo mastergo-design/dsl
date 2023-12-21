@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".",
+    "outDir": "dist",
+    "sourceMap": false,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowJs": false,
+    "strict": true,
+    "noUnusedLocals": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "removeComments": false,
+    "downlevelIteration": true,
+    "lib": [
+      "esnext"
+    ],
+    "types": [
+      "@mastergo/plugin-typings"
+    ]
+  },
+  "include": [
+    "dsl.d.ts",
+  ]
+}
