@@ -1,3 +1,5 @@
+import type { Properties, PropertiesHyphen } from 'csstype';
+
 declare global {
   namespace MGDSL {
     interface MGDSLData {
@@ -13,7 +15,6 @@ declare global {
       readonly localStyle: StyleMap
       readonly fileMap: Record<FileId, MGDSLFile>
       root: MGNode
-      //TODO: 插件补充缺失自定义样式, GRID样式不包含在内
       settings: DSLSettings
       entry: MGDSLFile
     }
@@ -176,14 +177,14 @@ declare global {
      * 自动布局
      */
     type AutoLayout = {
-      direction: 'HORIZONTAL' | 'VERTICAL'
+      direction: 'COLUMN' | 'ROW'
       layoutWrap: 'NO_WRAP' | 'WRAP'
       gap: number
       itemSpacing: number
-      paddingTop: number
-      paddingRight: number
-      paddingBottom: number
-      paddingLeft: number
+      paddingTop: Dimension
+      paddingRight: Dimension
+      paddingBottom: Dimension
+      paddingLeft: Dimension
       /**
        * 主轴
        */
@@ -211,7 +212,7 @@ declare global {
         right?: Dimension
         top?: Dimension
         bottom?: Dimension
-      },
+      }
       /**
        * 包含外描边和阴影，实际渲染的bound
        */
@@ -245,64 +246,72 @@ declare global {
       value: number | string
     }
 
-    interface GeometryMixin {
-      fills: Array<Paint>
-      strokes: Array<Paint>
-      strokeWeight: number
-      strokeAlign: StrokeAlign
-      strokeCap: StrokeCap
-      strokeJoin: StrokeJoin
-      strokeStyle: StrokeStyle
-      dashCap: DashCap
-      strokeDashes: Array<number>
-      fillStyleId: string
-      strokeStyleId: string
-    }
-
-    interface BlendMixin {
-      opcity: number
-      effects: Array<Effect>
-      effectStyleId: string
-      blendMode: BlendMode
-    }
-
-    interface CornerMixin {
-      cornerRadius: number[]
-    }
-
-    interface LayoutMixin {
-      constrainProportions: boolean
-      layoutPositioning: 'AUTO' | 'ABSOLUTE' // applicable only inside auto-layout frames
-    }
-
     interface NodeStyle {
       /**
        * 和localClassMap的key保持一致
        */
       id: `style-${NodeId}`
       type: NodeStyleType
-      value: NodeStyleValue | NodeTextStyleValue
-    }
-
-    interface NodeStyleValue extends GeometryMixin, CornerMixin, BlendMixin, LayoutMixin {
-    }
-
-    interface NodeTextStyleValue extends NodeStyleValue {
-      characters: string
-      hyperlinks: Array<HyperlinkWithRange>
-      textAlignHorizontal: 'LEFT' | 'CENTER' | 'RIGHT' | 'JUSTIFIED'
-      textAlignVertical: 'TOP' | 'CENTER' | 'BOTTOM'
-      textAutoResize: 'NONE' | 'WIDTH_AND_HEIGHT' | 'HEIGHT' | 'TRUNCATE'
-      paragraphSpacing: number
-      textStyles: Array<TextSegStyle>
-      listStyles: Array<ListStyle>
     }
 
     interface CssNodeStyle extends NodeStyle {
+      value: StyleSet
+      /**
+       * key为属性名称
+       */
+      attributes: Record<string, AttributeItem>
+      /**
+       * 行内样式
+       */
+      inlineStyles?: Record<keyof StyleSet, string | Raw>
       /**
       * 样式名数组
       */
-      classList: ClassId[]
+      classList?: ClassId[]
+      /**
+       * 标签名称
+       */
+      tag?: 'img' | 'div' | 'button' | 'input' | 'slot' | 'svg'
+    }
+
+    /**
+     * static 静态属性
+     * dynamic 动态属性
+     * method 方法
+     * unbind 无需绑定的属性
+     */
+    type Attribute = 'static' | 'dynamic' | 'method' | 'unbind'
+
+    interface AttributeItem {
+      type: Attribute
+      /**
+       * 属性名
+       */
+      name: string
+      /**
+       * 属性值或者是对应的函数名称
+       */
+      value: string
+      /**
+       * 参数类型
+       */
+      valueType: ComponentPropType
+      /**
+       * 属性值的来源
+       */
+      valueSource?: 'props' | 'methods' | 'data'
+      /**
+       * 函数的表达式
+       */
+      expression?: string
+      /**
+       * 默认值
+       */
+      defaultValue?: string | number | boolean
+      /**
+       * 方法的传参
+       */
+      arguments?: string[]
     }
 
     interface IOSNodeStyle extends NodeStyle {
@@ -311,7 +320,10 @@ declare global {
     interface AndroidNodeStyle extends NodeStyle {
     }
 
-    type StyleSet = Record<string, string | number>
+    interface StyleSet
+      extends Properties<string | number>,
+    PropertiesHyphen<string | number> {
+    }
 
     // style-class-xx
     type ClassId = string
