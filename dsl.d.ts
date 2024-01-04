@@ -10,7 +10,7 @@ declare global {
       /**
        * 框架类型
        */
-      readonly frameWorkType: FrameWorkType
+      readonly framework: Framework
       readonly nodeMap: Record<NodeId, MGNode>
       readonly localStyle: StyleMap
       readonly fileMap: Record<FileId, MGDSLFile>
@@ -19,45 +19,51 @@ declare global {
       entry: MGDSLFile
     }
 
-    interface JSDSLData {
+    // js dsl模板
+    interface JSDSLData extends MGDSLData{
       /**
        * 全局样式表
        */
       globalStyleMap: {
         [classId: string]: ClassStyle
-      },
+      }
+    }
+    interface ReactDSLData extends JSDSLData {
+      readonly framework: 'REACT'
+    }
+    interface Vue3DSLData extends JSDSLData {
+      readonly framework: 'VUE3'
+    }
+    interface Vue2DSLData extends JSDSLData {
+      readonly framework: 'VUE2'
+    }
+    interface AndroidDSLData extends MGDSLData {
+      readonly framework: 'ANDROID'
+    }
+    interface IOSDSLData extends MGDSLData {
+      readonly framework: 'IOS'
     }
 
-    interface ReactTemplate extends MGDSLData, JSDSLData {
-      readonly frameWorkType: "REACT"
-    }
-    interface Vue3Template extends MGDSLData, JSDSLData {
-      readonly frameWorkType: "VUE3"
-    }
-    interface Vue2Template extends MGDSLData, JSDSLData {
-      readonly frameWorkType: "VUE2"
-    }
-    interface AndroidTemplate extends MGDSLData {
-      readonly frameWorkType: "ANDROID"
-    }
-    interface IOSTemplate extends MGDSLData {
-      readonly frameWorkType: "IOS"
-    }
+    type Framework = 'REACT' | 'VUE2' | 'VUE3' | 'ANDROID' | 'IOS'
 
-    type FrameWorkType = "REACT" | "VUE2" | "VUE3" | "ANDROID" | "IOS"
-
-    type StyleMap = {
+    interface StyleMap {
       paints: PaintStyle[]
       texts: TextStyle[]
       effects: EffectStyle[]
       stroke: StrokeStyle[]
     }
 
-    type DSLSettings = {
-
+    /**
+     * 配置
+     */
+    interface DSLSettings {
+      /**
+       * 是否使用自定义样式，默认为true
+       */
+      useToken: boolean
     }
 
-    type ClassStyle = {
+    interface ClassStyle {
       id: ClassId
       name: string
       scoped: boolean
@@ -75,11 +81,11 @@ declare global {
     type OperationId = string
 
     interface MGNode {
-      type: "OPERATION" | "LAYER"
+      type: 'OPERATION' | 'LAYER'
     }
 
     interface MGLayerNode extends MGNode {
-      type: "LAYER"
+      type: 'LAYER'
       id: LayerId
       children: NodeId[]
       name: string
@@ -87,6 +93,8 @@ declare global {
        * 图层实际类型名称 RECTANGLE TEXT FRAME...
        */
       layerType: NodeType
+      // 是否是蒙版
+      isMask: boolean
       layout: NodeLayout
       style: CssNodeStyle | IOSNodeStyle | AndroidNodeStyle
       /**
@@ -106,24 +114,20 @@ declare global {
     }
 
     interface MGComponentNode extends MGLayerNode {
-      layerType: "COMPONENT"
+      layerType: 'COMPONENT'
       alias: string
       /**
-       * 是否是组件集子组件
+       * 是组件集子组件的话则存在
        */
-      isChildOfComponentSet: boolean
-      /**
-       * 组件别名
-       */
-      componentNameAlias?: string
+      componentSetId?: string
     }
 
     interface MGInstanceNode extends MGLayerNode {
-      layerType: "INSTANCE"
+      layerType: 'INSTANCE'
       /**
        * 实例的主组件Layer, 这里不开通用模型就不解析
        */
-      mainComponent?: MGComponentNode
+      mainComponent?: LayerId
     }
 
     type NodeType =
@@ -166,7 +170,7 @@ declare global {
        * 自动布局
        */
       autoLayout?: AutoLayout
-      overflow?: "HIDDEN" | "VISIBLE"
+      overflow?: 'HIDDEN' | 'VISIBLE'
       /**
        * 相对于父元素的布局
        */
@@ -177,29 +181,33 @@ declare global {
      * 自动布局
      */
     type AutoLayout = {
-      direction: 'COLUMN' | 'ROW'
+      direction: 'COLUMN' | 'ROW',
       layoutWrap: 'NO_WRAP' | 'WRAP'
-      gap: number
-      itemSpacing: number
+      // 轴距
+      itemSpacing: Dimension | 'AUTO'
+      // 交叉轴距, 只有在 layoutWrap = 'WRAP'时生效
+      crossAxisSpacing: Dimension | 'AUTO' | null
       paddingTop: Dimension
       paddingRight: Dimension
       paddingBottom: Dimension
       paddingLeft: Dimension
       /**
-       * 主轴
+       * 主轴对齐方式
        */
       mainAxisAlignItems: AlignTypes
       /**
-       * 交叉轴
+       * 交叉轴对齐方式
        */
-      crossAxisAlignItems: Exclude<AlignTypes, 'SPACE-BETWEEN'>
+      crossAxisAlignItems: Exclude<AlignTypes, 'SPACE_BETWEEN'>
+      /**
+       * 仅当换行的时候，交叉轴的多行对齐方式
+       */
+      crossAxisAlignContent: 'AUTO' | 'SPACE_BETWEEN'
       /**
        * 描边是否包含在布局内
        */
       strokesIncludedInLayout: boolean
       itemReverseZIndex: boolean
-      spacingStyleId: string
-      paddingStyleId: string
     }
 
     /**
@@ -212,7 +220,7 @@ declare global {
         right?: Dimension
         top?: Dimension
         bottom?: Dimension
-      }
+      },
       /**
        * 包含外描边和阴影，实际渲染的bound
        */
@@ -237,7 +245,7 @@ declare global {
     /**
      * flex布局主轴
      */
-    type AlignTypes = 'START' | 'END' | 'CENTER' | 'SPACE-BETWEEN'
+    type AlignTypes = 'START' | 'END' | 'CENTER' | 'SPACE_BETWEEN'
     /**
      * 尺寸单位
      */
@@ -314,15 +322,13 @@ declare global {
       arguments?: string[]
     }
 
-    interface IOSNodeStyle extends NodeStyle {
-    }
+    type IOSNodeStyle = NodeStyle
 
-    interface AndroidNodeStyle extends NodeStyle {
-    }
+    type AndroidNodeStyle = NodeStyle
 
     interface StyleSet
       extends Properties<string | number>,
-    PropertiesHyphen<string | number> {
+      PropertiesHyphen<string | number> {
     }
 
     // style-class-xx
@@ -338,7 +344,7 @@ declare global {
     | 'SCROLLVIEW'
 
     interface MGOperationNode extends MGNode {
-      type: "OPERATION"
+      type: 'OPERATION'
     }
 
     /**
@@ -376,7 +382,7 @@ declare global {
      * 原始字符串
      */
     interface Raw extends MGOperationNode {
-      operationType: "RAW"
+      operationType: 'RAW'
       body: string
     }
     /**
@@ -399,9 +405,9 @@ declare global {
       name: string
       relatedLayerId: LayerId
       chunks: FileId[]
-      data?: any[]
-      props?: ComponentProp[]
-      methods?: Array<Method>
+      data: Record<string, any>
+      props: Record<string, ComponentProp>
+      methods: Record<string, Method>
     }
 
     type FileId = string
@@ -451,4 +457,4 @@ declare global {
   }
 }
 
-export { }
+export { };

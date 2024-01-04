@@ -1,6 +1,6 @@
 {
   "name": "@mastergo/dsl",
-  "version": "1.0.0-beta",
+  "version": "1.0.1-beta",
   "description": "MasterGo设计系统语言",
   "main": "",
   "types": "dist/index.d.ts",
