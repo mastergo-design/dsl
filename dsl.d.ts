@@ -10,11 +10,11 @@ declare global {
       /**
        * 框架类型
        */
-      readonly framework: Framework
+      framework: Framework
       readonly nodeMap: Record<NodeId, MGNode>
       readonly localStyle: StyleMap
       readonly fileMap: Record<FileId, MGDSLFile>
-      root: MGNode
+      root: MGLayerNode
       settings: DSLSettings
       entry: MGDSLFile
     }
@@ -90,6 +90,10 @@ declare global {
       children: NodeId[]
       name: string
       /**
+       * 图层在代码中的组件名
+       */
+      componentName: string
+      /**
        * 图层实际类型名称 RECTANGLE TEXT FRAME...
        */
       layerType: NodeType
@@ -103,14 +107,13 @@ declare global {
       isRoot: boolean
       parent?: NodeId
       /**
+       * 关联的文件
+       */
+      relatedFile: FileId
+      /**
        * 是否拆分成新文件,默认false
        */
       isNewFile?: boolean
-      /**
-       * 关联的文件，当isNewFile为true时存在
-       * 修改isNewFile的值后，需要更新一下dsl生成新的MGDSLData
-       */
-      readonly relatedFile?: FileId
     }
 
     interface MGComponentNode extends MGLayerNode {
@@ -128,6 +131,10 @@ declare global {
        * 实例的主组件Layer, 这里不开通用模型就不解析
        */
       mainComponent?: LayerId
+    }
+
+    interface MGTextNode extends MGLayerNode {
+      characters: string
     }
 
     type NodeType =
@@ -262,7 +269,21 @@ declare global {
       type: NodeStyleType
     }
 
+    /**
+     * 分段样式
+     */
+    type TextSegStyle = {
+      start: number
+      end: number
+      textStyleId: string
+      textStyle: StyleSet
+    }
+
     interface CssNodeStyle extends NodeStyle {
+      /**
+       * css类名
+       */
+      name: string
       value: StyleSet
       /**
        * key为属性名称
@@ -271,7 +292,17 @@ declare global {
       /**
        * 行内样式
        */
-      inlineStyles?: Record<keyof StyleSet, string | Raw>
+      inlineStyles?: StyleSet
+      /**
+       * 动态行内样式
+       */
+      dynamicInlineStyles?: {
+        [key in keyof StyleSet]: string
+      }
+      /**
+       * 文字分段样式
+       */
+      textStyles?: TextSegStyle[]
       /**
       * 样式名数组
       */
@@ -279,16 +310,20 @@ declare global {
       /**
        * 标签名称
        */
-      tag?: 'img' | 'div' | 'button' | 'input' | 'slot' | 'svg'
+      tag?: 'IMG' | 'DIV' | 'TEXT' | 'BUTTON' | 'INPUT' | 'SLOT' | 'SVG' | 'OPTION'
+      /**
+       * 子选择器
+       */
+      subSelectors?: Array<ClassStyle>
     }
 
     /**
-     * static 静态属性
-     * dynamic 动态属性
-     * method 方法
-     * unbind 无需绑定的属性
+     * STATIC 静态属性
+     * DYNAMIC 动态属性
+     * METHOD 方法
+     * UNBIND 只定义，但没有使用的属性
      */
-    type Attribute = 'static' | 'dynamic' | 'method' | 'unbind'
+    type Attribute = 'STATIC' | 'DYNAMIC' | 'METHOD' | 'UNBIND'
 
     interface AttributeItem {
       type: Attribute
@@ -303,11 +338,11 @@ declare global {
       /**
        * 参数类型
        */
-      valueType: ComponentPropType
+      valueType: keyof ComponentPropType
       /**
        * 属性值的来源
        */
-      valueSource?: 'props' | 'methods' | 'data'
+      valueSource?: 'PROPS' | 'METHODS' | 'DATA'
       /**
        * 函数的表达式
        */
@@ -343,19 +378,16 @@ declare global {
     | 'BUTTON'
     | 'SCROLLVIEW'
 
-    interface MGOperationNode extends MGNode {
-      type: 'OPERATION'
-    }
-
     /**
      * 运算符
      */
-    type Operation = IfStatement | Iteration | Raw | TernaryExpression
+    type MGOperationNode = IfStatement | Iteration | Raw | TernaryExpression
 
     /**
      * 条件判断
      */
-    interface IfStatement extends MGOperationNode {
+    interface IfStatement {
+      type: 'OPERATION'
       operationType: 'If_STATEMENT'
       // 表达式
       consequent: {
@@ -371,7 +403,8 @@ declare global {
     /**
      * 迭代器
      */
-    interface Iteration extends MGOperationNode {
+    interface Iteration {
+      type: 'OPERATION'
       operationType: 'ITERATOR'
       // 迭代的变量
       variable: string
@@ -381,14 +414,16 @@ declare global {
     /**
      * 原始字符串
      */
-    interface Raw extends MGOperationNode {
+    interface Raw {
+      type: 'OPERATION'
       operationType: 'RAW'
       body: string
     }
     /**
      * 三目运算
      */
-    interface TernaryExpression extends MGOperationNode {
+    interface TernaryExpression {
+      type: 'OPERATION'
       operationType: 'TERNARY_EXPRESSION'
       trueExpression: {
         type: 'MGNode' | 'IDENTIFIER'
@@ -403,7 +438,7 @@ declare global {
     interface MGDSLFile {
       id: FileId
       name: string
-      relatedLayerId: LayerId
+      entryLayerId: LayerId
       chunks: FileId[]
       data: Record<string, any>
       props: Record<string, ComponentProp>
