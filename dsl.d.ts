@@ -12,7 +12,7 @@ declare global {
        */
       framework: Framework
       readonly nodeMap: Record<NodeId, MGNode>
-      readonly localStyle: StyleMap
+      readonly localStyleMap: StyleMap
       readonly fileMap: Record<FileId, MGDSLFile>
       root: MGLayerNode
       settings: DSLSettings
@@ -46,12 +46,58 @@ declare global {
 
     type Framework = 'REACT' | 'VUE2' | 'VUE3' | 'ANDROID' | 'IOS'
 
-    interface StyleMap {
-      paints: PaintStyle[]
-      texts: TextStyle[]
-      effects: EffectStyle[]
-      stroke: StrokeStyle[]
+    type TokenName = string
+    type TokenValue = MGDSL.StyleSet[keyof MGDSL.StyleSet]
+    /**
+     * 自定义样式
+     */
+    type TokenItem = TokenCommonItem | TokenTextItem
+    type TokenCommonItem = {
+      id: string,
+      type:
+      | 'color'
+      | 'padding'
+      | 'border-radius'
+      | 'border-width'
+      | 'gap'
+      name: TokenName,
+      value: TokenValue,
+      /**
+       * 是否是多段
+       */
+      isMultiple?: boolean
     }
+    type TokenTextSubItemType =
+    | 'fontfamily'
+    | 'fontstyle'
+    | 'fontsize'
+    | 'lineheight'
+    | 'decoration'
+    | 'letterspacing'
+
+    type TokenTextItem = {
+      id: string,
+      type: 'text'
+      name: TokenName,
+      textItems: Record<TokenTextSubItemType, TokenTextSubItem>
+    };
+
+    type TokenTextSubItem = {
+      type: TokenTextSubItemType
+      name: TokenName,
+      value: TokenValue | TokenName,
+    }
+
+    /**
+     * TODO: 安卓自定义样式
+     */
+    type AndroidStyleItem = any
+    /**
+     * 自定义样式map
+     */
+    type StyleMap = {
+      [styleId: string]: TokenItem | AndroidStyleItem
+    };
 
     /**
      * 配置
