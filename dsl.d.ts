@@ -17,6 +17,10 @@ declare global {
       root: MGLayerNode
       settings: DSLSettings
       entry: MGDSLFile
+      /**
+       * 预览代码时所引入esm模块，需要讲配置模型上的依赖模块引入
+       */
+      esmImportMap: Record<string, string>
     }
 
     // js dsl模板
@@ -126,11 +130,9 @@ declare global {
     type LayerId = string
     type OperationId = string
 
-    interface MGNode {
-      type: 'OPERATION' | 'LAYER'
-    }
+    type MGNode = MGLayerNode | MGOperationNode
 
-    interface MGLayerNode extends MGNode {
+    interface MGLayerNode {
       type: 'LAYER'
       id: LayerId
       children: NodeId[]
@@ -145,6 +147,8 @@ declare global {
       layerType: NodeType
       // 是否是蒙版
       isMask: boolean
+      // 是否隐藏
+      isVisible: boolean
       layout: NodeLayout
       style: CssNodeStyle | IOSNodeStyle | AndroidNodeStyle
       /**
@@ -179,6 +183,13 @@ declare global {
       mainComponent?: LayerId
     }
 
+    interface MGCustomNode extends MGLayerNode {
+      layerType: 'CUSTOM'
+      tagName?: string
+      props?: ComponentProp[]
+      imports: ImportItem[]
+    }
+
     interface MGTextNode extends MGLayerNode {
       characters: string
     }
@@ -200,6 +211,7 @@ declare global {
       | 'SLICE'
       | 'CONNECTOR'
       | 'SECTION'
+      | 'CUSTOM'
 
     /**
      * 图层的布局信息
@@ -313,6 +325,7 @@ declare global {
        */
       id: `style-${NodeId}`
       type: NodeStyleType
+      disable?: boolean
     }
 
     /**
@@ -330,7 +343,14 @@ declare global {
        * css类名
        */
       name: string
+      /**
+       * UI样式
+       */
       value: StyleSet
+      /**
+       * 布局样式
+       */
+      layoutStyles: StyleSet
       /**
        * key为属性名称
        */
@@ -481,14 +501,28 @@ declare global {
       }
     }
 
+    type ImportItem = {
+      name: string
+      path: string
+      /**
+       * DEFAULT: import name from 'path'
+       * ALL: import * as name from 'path'
+       * NAMED: import { name } from 'path'
+       */
+      type: 'DEFAULT' | 'ALL'// | 'NAMED'
+    }
+
     interface MGDSLFile {
       id: FileId
       name: string
       entryLayerId: LayerId
       chunks: FileId[]
-      data: Record<string, any>
+      data: Record<string, Data>
       props: Record<string, ComponentProp>
       methods: Record<string, Method>
+      computed: Record<string, Computed>
+      // 导入
+      imports: ImportItem[]
     }
 
     type FileId = string
@@ -497,10 +531,15 @@ declare global {
       'STRING': string
       'NUMBER': number
       'BOOLEAN': boolean
-      'FUNCTION': CallableFunction
+      'FUNCTION': string
       'OBJECT': Record<string, unknown>
-      'ARRAY': Array<unknown>
-      'SLOT': string
+      'ARRAY': unknown[]
+      'SLOT': string | MGLayerNode[]
+    }
+
+    type ComponentPropValue<T extends keyof ComponentPropType> = {
+      type: T
+      value: ComponentPropType[T]
     }
 
     type ComponentPropItem<T extends keyof ComponentPropType> = {
@@ -531,10 +570,19 @@ declare global {
     interface Method {
       name: string
       args: Array<string>
-      content?: (string | MGNode)
-      returnValue?: string | MGNode
+      content: string
+      returnValue?: string
     }
 
+    type Data = ComponentPropString | ComponentPropNumber | ComponentPropBoolean | ComponentPropFunction | ComponentPropObject | ComponentPropArray
+
+    interface Computed {
+      name: string
+      args: Array<string>
+      content: string
+      returnValue?: string
+      dependencies?: Array<string>
+    }
   }
 }
 
