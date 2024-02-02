@@ -1,0 +1,33 @@
+{
+  "name": "mastergo-plugin",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "yarn dev:ui & yarn dev:main",
+    "dev:ui": "cross-env TARGET=ui NODE_ENV=development vite build --mode development -w",
+    "dev:main": "cross-env TARGET=main NODE_ENV=development vite build --mode development -w",
+    "build": "yarn build:ui && yarn build:main && rm -rf ./dist/assets",
+    "build:ui": "cross-env TARGET=ui vite build",
+    "build:main": "cross-env TARGET=main vite build"
+  },
+  "dependencies": {
+    "@mastergo/plugin-typings": "^2.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.5",
+    "@types/babel__core": "^7.1.18",
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.11",
+    "@vitejs/plugin-react": "^1.2.0",
+    "typescript": "^4.5.5",
+    "vite": "^2.8.4",
+    "vite-plugin-html": "^3.0.6",
+    "vite-plugin-singlefile": "^0.6.3",
+    "cross-env": "^7.0.3"
+  },
+  "engines": {
+    "node": ">=14.14.0"
+  }
+}
+
