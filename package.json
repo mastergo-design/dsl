@@ -1,7 +1,7 @@
 {
   "name": "@mastergo/dsl",
   "version": "1.0.1-beta",
-  "description": "MasterGo设计系统语言",
+  "description": "MasterGo Design System Language",
   "main": "",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -35,7 +35,6 @@
     "lib": "lib"
   },
   "devDependencies": {
-    "@mastergo/plugin-typings": "^2.2.0",
     "@rollup/plugin-commonjs": "^20.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.0.4",

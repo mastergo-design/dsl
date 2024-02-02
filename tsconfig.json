@@ -17,9 +17,6 @@
     "lib": [
       "esnext"
     ],
-    "types": [
-      "@mastergo/plugin-typings"
-    ]
   },
   "include": [
     "dsl.d.ts",

@@ -532,8 +532,8 @@ declare global {
       'NUMBER': number
       'BOOLEAN': boolean
       'FUNCTION': string
-      'OBJECT': Record<string, unknown>
-      'ARRAY': unknown[]
+      'OBJECT': Record<string, any>
+      'ARRAY': any[]
       'SLOT': string | MGLayerNode[]
     }
 
