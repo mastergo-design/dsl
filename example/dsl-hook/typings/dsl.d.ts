@@ -532,8 +532,8 @@ declare global {
       'NUMBER': number
       'BOOLEAN': boolean
       'FUNCTION': string
-      'OBJECT': Record<string, any>
-      'ARRAY': any[]
+      'OBJECT': Record<string, ComponentPropValue<keyof ComponentPropType>>
+      'ARRAY': ComponentPropValue<keyof ComponentPropType>[]
       'SLOT': string | MGLayerNode[]
     }
 
