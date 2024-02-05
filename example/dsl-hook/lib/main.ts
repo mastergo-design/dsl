@@ -2,15 +2,22 @@ import { UIMessage, sendMsgToUI, PluginMessage } from '@messages/sender'
 
 mg.showUI(__html__)
 
-let sendDSLToMG = (processedDSLData: MGDSL.MGDSLData) => {}
-//@ts-ignore
-mg.codegen.on("generateDSL", ({ data, callback }) => {
+const handler = ({ data, callback }: { data: MGDSL.MGDSLData, callback(dslData: MGDSL.MGDSLData): void }) => {
   sendDSLToMG = callback
   // send to ui to process it properly
   sendMsgToUI({
     type: PluginMessage.DSLGENERATED,
     data,
   })
+}
+
+let sendDSLToMG = (processedDSLData: MGDSL.MGDSLData) => {}
+//@ts-ignore
+mg.codegen.on("generateDSL", handler)
+
+mg.once('close', () => {
+  //@ts-ignore
+  mg.codegen.off('generateDSL', handler)
 })
 
 function restore() {
