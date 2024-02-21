@@ -12,9 +12,16 @@ const handler = ({ data, callback }: { data: MGDSL.MGDSLData, callback(dslData: 
 }
 
 let sendDSLToMG = (processedDSLData: MGDSL.MGDSLData) => {}
+
+/**
+ * monitor when dslData has been
+ */
 //@ts-ignore
 mg.codegen.on("generateDSL", handler)
 
+/**
+ * plugin closed
+ */
 mg.once('close', () => {
   //@ts-ignore
   mg.codegen.off('generateDSL', handler)

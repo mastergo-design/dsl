@@ -3,6 +3,6 @@
   "main": "dist/main.js",
   "ui": "dist/index.html",
   "permissions": ["currentuser"],
-  "editor_type": ["devMode"],
+  "editor_type": "devMode",
   "capabilities": ["codegen"]
 }
