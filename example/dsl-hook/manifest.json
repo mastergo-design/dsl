@@ -2,7 +2,12 @@
   "name": "dsl-demo",
   "main": "dist/main.js",
   "ui": "dist/index.html",
-  "permissions": ["currentuser"],
+  "permissions": [
+    "currentuser"
+  ],
   "editor_type": "devMode",
-  "capabilities": ["codegen"]
+  "capabilities": [
+    "codegen"
+  ],
+  "id": 119690857571362
 }

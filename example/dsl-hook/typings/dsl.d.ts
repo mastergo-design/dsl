@@ -16,7 +16,7 @@ declare global {
       readonly fileMap: Record<FileId, MGDSLFile>
       root: MGLayerNode
       settings: DSLSettings
-      entry: MGDSLFile
+      entry: FileId
       /**
        * 预览代码时所引入esm模块，需要讲配置模型上的依赖模块引入
        */
@@ -453,15 +453,17 @@ declare global {
      * 条件判断
      */
     interface IfStatement {
+      id: OperationId
       type: 'OPERATION'
       operationType: 'If_STATEMENT'
       // 表达式
+      condition: string
       consequent: {
-        type: 'MGNode' | 'IDENTIFIER'
+        type: 'MGNode' | 'EXPRESSION'
         body: MGNode | string
       }
       alternate: {
-        type: 'MGNode' | 'IDENTIFIER'
+        type: 'MGNode' | 'EXPRESSION'
         body: MGNode | string
       }
     }
@@ -470,17 +472,21 @@ declare global {
      * 迭代器
      */
     interface Iteration {
+      id: OperationId
       type: 'OPERATION'
       operationType: 'ITERATOR'
-      // 迭代的变量
+      // 迭代器的变量名
       variable: string
       body: MGNode
+      // 作为key的变量名，属于迭代变量中元素上的字段
+      key?: string
     }
 
     /**
      * 原始字符串
      */
     interface Raw {
+      id: OperationId
       type: 'OPERATION'
       operationType: 'RAW'
       body: string
@@ -489,14 +495,16 @@ declare global {
      * 三目运算
      */
     interface TernaryExpression {
+      id: OperationId
       type: 'OPERATION'
       operationType: 'TERNARY_EXPRESSION'
+      condition: string
       trueExpression: {
-        type: 'MGNode' | 'IDENTIFIER'
+        type: 'MGNode' | 'EXPRESSION'
         body: MGNode | string
       }
       falseExpression: {
-        type: 'MGNode' | 'IDENTIFIER'
+        type: 'MGNode' | 'EXPRESSION'
         body: MGNode | string
       }
     }
@@ -518,7 +526,7 @@ declare global {
       entryLayerId: LayerId
       chunks: FileId[]
       data: Record<string, Data>
-      props: Record<string, ComponentProp>
+      props: Record<string, Prop>
       methods: Record<string, Method>
       computed: Record<string, Computed>
       // 导入
@@ -574,7 +582,53 @@ declare global {
       returnValue?: string
     }
 
-    type Data = ComponentPropString | ComponentPropNumber | ComponentPropBoolean | ComponentPropFunction | ComponentPropObject | ComponentPropArray
+    type DSLNumber = {
+      type: 'NUMBER'
+      /**
+       * 默认值，也可作为初始值使用
+       */
+      defaultValue?: number | undefined
+      name: string
+    }
+
+    type DSLBoolean = {
+      type: 'BOOLEAN'
+      defaultValue?: boolean | undefined
+      name: string
+    }
+
+    type DSLString = {
+      type: 'STRING'
+      /**
+      * 默认值，也可作为初始值使用
+      */
+      defaultValue?: string | undefined
+      name: string
+    }
+
+    type DSLFunction = {
+      type: 'FUNCTION'
+      defaultValue?: string | undefined
+      name: string
+    }
+
+    type DSLArray = {
+      type: 'ARRAY'
+      defaultValue?: Array<any> | undefined
+      name: string
+    }
+
+    type DSLObject = {
+      type: 'OBJECT'
+      /**
+       * 默认值，也可作为初始值使用
+       */
+      defaultValue?: {[key: string]: any}
+      name: string
+    }
+
+    type Data = DSLString | DSLNumber | DSLBoolean | DSLFunction | DSLArray | DSLObject
+    type Prop = DSLString | DSLNumber | DSLBoolean | DSLFunction | DSLArray | DSLObject
 
     interface Computed {
       name: string
