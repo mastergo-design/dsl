@@ -1,12 +1,10 @@
 import type { Properties, PropertiesHyphen } from 'csstype';
-
 declare global {
   namespace MGTMP {
     type RegExpString = string;
     type PseudoType = 'HOVER' | 'ACTIVE' | 'FOCUS' | 'DISABLED';
     /**
      * 工具类样式，如：.flex-1 { flex: 1 }
-     * 通常为写死的样式，不会根据数据动态生成。当value与DesignToCode.StyleNode.value相同时，可以直接使用StyleRule.className作为DesignToCode.StyleNode.className
      */
     type UtilityStyle = {
       type: 'UTILITY',
