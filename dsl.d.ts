@@ -16,7 +16,7 @@ declare global {
       readonly fileMap: Record<FileId, MGDSLFile>
       root: MGLayerNode
       settings: DSLSettings
-      entry: MGDSLFile
+      entry: FileId
       /**
        * 预览代码时所引入esm模块，需要讲配置模型上的依赖模块引入
        */
