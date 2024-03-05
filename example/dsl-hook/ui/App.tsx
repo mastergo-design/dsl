@@ -37,9 +37,9 @@ function App() {
 
 
     const modifyReactDSL = () => {
-        const { entry, root } = dsl.current
+        const { entry, root, fileMap } = dsl.current
         // modify the global variants of entry file
-        const { props, data, methods } = entry
+        const { props, data, methods } = fileMap[entry]
         props['show'] = {
             type: 'BOOLEAN',
             defaultValue: true,
@@ -69,9 +69,9 @@ function App() {
     }
 
     const modifyVUEDSL = () => {
-        const { entry, root } = dsl.current
+        const { entry, root, fileMap } = dsl.current
         // modify the global variants of entry file
-        const { props, data, methods } = entry
+        const { props, data, methods } = fileMap[entry]
         props['show'] = {
             type: 'BOOLEAN',
             defaultValue: true,
