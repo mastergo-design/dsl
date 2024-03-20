@@ -57,15 +57,15 @@ declare global {
      */
     type TokenItem = TokenCommonItem | TokenTextItem
     type TokenCommonItem = {
-      id: string,
+      id: string
       type:
       | 'color'
       | 'padding'
       | 'border-radius'
       | 'border-width'
       | 'gap'
-      name: TokenName,
-      value: TokenValue,
+      name: TokenName
+      value: TokenValue
       /**
        * 是否是多段
        */
@@ -80,16 +80,16 @@ declare global {
     | 'letterspacing'
 
     type TokenTextItem = {
-      id: string,
+      id: string
       type: 'text'
-      name: TokenName,
+      name: TokenName
       textItems: Record<TokenTextSubItemType, TokenTextSubItem>
     };
 
     type TokenTextSubItem = {
       type: TokenTextSubItemType
-      name: TokenName,
-      value: TokenValue | TokenName,
+      name: TokenName
+      value: TokenValue
     }
 
     /**
@@ -246,7 +246,7 @@ declare global {
      * 自动布局
      */
     type AutoLayout = {
-      direction: 'COLUMN' | 'ROW',
+      direction: 'COLUMN' | 'ROW'
       layoutWrap: 'NO_WRAP' | 'WRAP'
       // 轴距
       itemSpacing: Dimension | 'AUTO'
@@ -285,7 +285,7 @@ declare global {
         right?: Dimension
         top?: Dimension
         bottom?: Dimension
-      },
+      }
       /**
        * 包含外描边和阴影，实际渲染的bound
        */
