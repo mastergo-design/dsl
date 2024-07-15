@@ -51,7 +51,7 @@ declare global {
     type Framework = 'REACT' | 'VUE2' | 'VUE3' | 'ANDROID' | 'IOS'
 
     type TokenName = string
-    type TokenValue = MGDSL.StyleSet[keyof MGDSL.StyleSet]
+    type TokenValue = StyleSet[keyof StyleSet]
     /**
      * 自定义样式
      */
